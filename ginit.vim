@@ -1,0 +1,5 @@
+" let &shell = '"C:\WINDOWS\system32\cmd.exe"'
+" let g:python_host_prog = 'C:\\Users\\sbischof\\.venv-neovim\\Scripts\\python.exe'
+" let g:python3_host_prog = 'C:\\Users\\sbischof\\.venv-neovim\\Scripts\\python.exe'
+" let g:ruby_host_prog = 'C:\\Users\\sbischof\\.gem\\win-ruby\\3.3.0\\bin\\neovim-ruby-host.bat'
+" let g:node_host_prog = 'C:\\Users\\sbischof\\.npm\\bin\\neovim-node-host.bat'

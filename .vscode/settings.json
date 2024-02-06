@@ -1,0 +1,7 @@
+{
+    "Lua.diagnostics.globals": [
+        "vim",
+        "vscode"
+    ],
+    "todo-tree.tree.scanMode": "current file"
+}
