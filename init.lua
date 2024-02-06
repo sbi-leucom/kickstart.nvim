@@ -42,20 +42,6 @@ What is Kickstart?
     - (or HTML version): https://neovim.io/doc/user/lua-guide.html
 
 Kickstart Guide:
-
-  TODO: The very first thing you should do is to run the command `:Tutor` in Neovim.
-
-    If you don't know what this means, type the following:
-      - <escape key>
-      - :
-      - Tutor
-      - <enter key>
-
-    (If you already know how the Neovim basics, you can skip this step)
-
-  Once you've completed that, you can continue working through **AND READING** the rest
-  of the kickstart init.lua
-
   Next, run AND READ `:help`.
     This will open up a help window with some basic information
     about reading, navigating and searching the builtin help documentation.
@@ -90,6 +76,18 @@ P.S. You can delete this when you're done too. It's your config now! :)
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
+-- [[ Specific vscode settings ]]
+-- if vim.g.vscode then
+-- VSCode extension specific
+-- require("vscode.vscode-setup")
+-- else
+--  -- Normal neovim specific
+-- end
+
+-- [[ Set guifont ]]
+-- See `:help guifont`
+vim.opt.guifont = 'Hack Nerd Font Mono:h12'
+
 -- [[ Setting options ]]
 -- See `:help vim.opt`
 -- NOTE: You can change these options as you wish!
@@ -99,7 +97,16 @@ vim.g.maplocalleader = ' '
 vim.opt.number = true
 -- You can also add relative line numbers, for help with jumping.
 --  Experiment for yourself to see if you like it!
--- vim.opt.relativenumber = true
+vim.opt.relativenumber = true
+
+-- Disable auto word wrap
+vim.opt.wrap = false
+
+-- Default text width
+vim.opt.textwidth = 88
+
+-- Show guide lines
+vim.opt.colorcolumn = { 72, 80, 88, 100, 120 }
 
 -- Enable mouse mode, can be useful for resizing splits for example!
 vim.opt.mouse = 'a'
@@ -137,7 +144,32 @@ vim.opt.splitbelow = true
 --  See `:help 'list'`
 --  and `:help 'listchars'`
 vim.opt.list = true
-vim.opt.listchars = { tab = '» ', trail = '·', nbsp = '␣' }
+-- vim.opt.listchars = { tab = '» ', trail = '·', nbsp = '␣' }
+--[[
+vim.opt.listchars = {
+  concealed = '*',
+  eol = '¶',
+  extends = '▶',
+  lead = '·',
+  leadmultispace = '>',
+  multispace = '···+',
+  nbsp = '␣',
+  precedes = '◀',
+  space = '·',
+  tab = '>-',
+  trail = '·'
+}
+]]
+vim.opt.listchars = {
+  -- concealed = '*',
+  eol = '¶',
+  extends = '▶',
+  nbsp = '␣',
+  precedes = '◀',
+  space = '·',
+  tab = '>-',
+  trail = '·',
+}
 
 -- Preview substitutions live, as you type!
 vim.opt.inccommand = 'split'
@@ -148,9 +180,40 @@ vim.opt.cursorline = true
 -- Minimal number of screen lines to keep above and below the cursor.
 vim.opt.scrolloff = 10
 
+--[[ Settings for Editor navigation ]]
+-- Navigation over line start, ending
+vim.opt.whichwrap:append 'h,l'
+vim.opt.whichwrap:append '<,>,[,]'
+
+-- Delete over line start, ending
+vim.opt.backspace = { 'indent', 'eol', 'start' }
+
+-- [[ Enable code folding ]]
+vim.opt.foldlevel = 20
+vim.opt.foldmethod = 'expr'
+vim.opt.foldexpr = 'nvim_treesitter#foldexpr()'
+-- vim.opt.foldnestmax = 10
+-- vim.opt.foldlevelstart = 99
+-- vim.opt.nofoldenable = false
+
+-- [[ Shell Settings ]]
+--  See `:help 'shell'`
+vim.opt.shell = '/usr/bin/bash'
+vim.opt.shellcmdflag = '-c'
+--  See `:help 'shellquote'`
+vim.opt.shellquote = '"'
+vim.opt.shellxquote = '('
+vim.opt.shellslash = true
+
+-- [[ Setting host programs ]]
+-- Set python
+vim.g.python_host_prog = '$HOME/.neovim-python/bin/python'
+vim.g.python3_host_prog = '$HOME/.neovim-python/bin/python'
+-- Set ruby
+vim.g.ruby_host_prog = '/usr/local/bin/neovim-ruby-host'
+
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
-
 -- Set highlight on search, but clear on pressing <Esc> in normal mode
 vim.opt.hlsearch = true
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
@@ -303,7 +366,7 @@ require('lazy').setup {
         -- `build` is used to run some command when the plugin is installed/updated.
         -- This is only run then, not every time Neovim starts up.
         build = 'make',
-
+        -- build = "cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release && cmake --install build --prefix build",
         -- `cond` is a condition used to determine whether this plugin should be
         -- installed and loaded.
         cond = function()
@@ -315,7 +378,7 @@ require('lazy').setup {
       -- Useful for getting pretty icons, but requires special font.
       --  If you already have a Nerd Font, or terminal set up with fallback fonts
       --  you can enable this
-      -- { 'nvim-tree/nvim-web-devicons' }
+      { 'nvim-tree/nvim-web-devicons' },
     },
     config = function()
       -- Telescope is a fuzzy finder that comes with a lot of different things that
@@ -557,7 +620,7 @@ require('lazy').setup {
                 -- for your neovim configuration.
                 library = {
                   '${3rd}/luv/library',
-                  unpack(vim.api.nvim_get_runtime_file('', true)),
+                  unpack(vim.api.nvim_get_runtime_file('', true)), ---@diagnostic disable-line: deprecated
                 },
                 -- If lua_ls is really slow on your computer, you can try this instead:
                 -- library = { vim.env.VIMRUNTIME },
@@ -716,6 +779,8 @@ require('lazy').setup {
     end,
   },
 
+  -- [[ Setting colorscheme ]]
+  --[[
   { -- You can easily change to a different colorscheme.
     -- Change the name of the colorscheme plugin below, and then
     -- change the command in the config to whatever the name of that colorscheme is
@@ -734,9 +799,50 @@ require('lazy').setup {
       vim.cmd.hi 'Comment gui=none'
     end,
   },
+]]
+  {
+    'oxfist/night-owl.nvim',
+    lazy = false, -- make sure we load this during startup if it is your main colorscheme
+    priority = 1000, -- make sure to load this before all the other start plugins
+    config = function()
+      require('night-owl').setup {
+        italics = false, -- i don't like cursive text, it makes some text hard to read
+        transparent_background = true, -- checking if this makes any sense
+      }
+      -- Load the colorscheme here
+      vim.cmd.colorscheme 'night-owl'
+      -- You can configure highlights by doing something like
+      vim.cmd.hi 'ColorColumn ctermbg=darkred ctermfg=lightgrey guibg=darkred guifg=lightgrey'
+      vim.cmd.hi 'CursorLine ctermbg=darkblue ctermfg=lightgrey guibg=darkblue guifg=lightgrey'
+      --   vim.cmd.hi 'CursorColumn ctermbg=darkblue ctermfg=lightgrey guibg=darkblue guifg=lightgrey'
+      vim.cmd.hi 'Comment gui=none'
+    end,
+  },
+
+  -- Code Folding
+  --   {
+  --     "anuvyklack/pretty-fold.nvim",
+  --     config = function()
+  --       require("pretty-fold").setup({
+  --         keep_indentation = false,
+  --         fill_char = '•',
+  --         sections = {
+  --           left = {
+  --             '+', function() return string.rep('-', vim.v.foldlevel) end,
+  --             ' ', 'number_of_folded_lines', ':', 'content',
+  --           },
+  --         }
+  --       })
+  --     end,
+  --   },
 
   -- Highlight todo, notes, etc in comments
-  { 'folke/todo-comments.nvim', event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
+  {
+    'folke/todo-comments.nvim',
+    event = 'VimEnter',
+    dependencies = { 'nvim-lua/plenary.nvim' },
+    opts = { signs = false },
+  },
 
   { -- Collection of various small independent plugins/modules
     'echasnovski/mini.nvim',
@@ -808,14 +914,15 @@ require('lazy').setup {
   --  Here are some example plugins that I've included in the kickstart repository.
   --  Uncomment any of the lines below to enable them (you will need to restart nvim).
   --
-  -- require 'kickstart.plugins.debug',
-  -- require 'kickstart.plugins.indent_line',
+  require 'kickstart.plugins.debug',
+  require 'kickstart.plugins.indent_line',
 
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
   --    This is the easiest way to modularize your config.
   --
   --  Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
   --    For additional information, see `:help lazy.nvim-lazy.nvim-structuring-your-plugins`
+  -- { import = 'lazyvim.plugins.extras.vscode' },
   -- { import = 'custom.plugins' },
 }
 
