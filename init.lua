@@ -1,3 +1,8 @@
+if vim.fn.expand("%:t") == "COMMIT_EDITMSG" then
+  vim.cmd("set nomore")  -- suppress "Press Enter" prompts just in case
+  return
+end
+
 --[[
 
 =====================================================================
@@ -390,7 +395,6 @@ require('lazy').setup({
         --
         -- Then, because we use the `opts` key (recommended), the configuration runs
         -- after the plugin has been loaded as `require(MODULE).setup(opts)`.
-
   { -- Useful plugin to show you pending keybinds.
     'folke/which-key.nvim',
     event = 'VimEnter', -- Sets the loading event to 'VimEnter'
@@ -856,7 +860,7 @@ require('lazy').setup({
                     --   },
                     -- },
 
-                    -- phan = {},
+                    phan = {},
                     -- phan = {
                     --   cmd = { "phan", "-m", "json", "--no-color", "--no-progress-bar", "-x", "-u", "-S", "--language-server-on-stdin", "--allow-polyfill-parser" },
                     --   filetypes = { "php" },
@@ -868,7 +872,7 @@ require('lazy').setup({
                     --   filetypes = { "php" },
                     -- },
 
-                    -- postgres_lsp = {},
+                    postgres_lsp = {},
                     -- postgres_lsp = {
                     --   cmd = { "postgrestools", "lsp-proxy" },
                     --   filetypes = { "sql" },
@@ -1176,8 +1180,27 @@ require('lazy').setup({
         },
         { -- Highlight, edit, and navigate code
             'nvim-treesitter/nvim-treesitter',
-            build = ':TSUpdate',
+            -- build = ':TSUpdate',
             main = 'nvim-treesitter.configs', -- Sets main module to use for opts
+            -- Conditionally build/install Treesitter only in MSYS2 or MINGW
+            build = function()
+                local shell = vim.loop.os_getenv("SHELL") or ""
+                local term = vim.loop.os_getenv("TERM") or ""
+                local is_mingw = shell:match("mingw") or term:match("xterm%-256color")
+
+                if is_mingw then
+                    vim.cmd("TSUpdate")
+                else
+                    vim.schedule(
+                        function()
+                            vim.notify(
+                                "[treesitter] Skipped TSUpdate (non-MSYS2 shell detected). Use MSYS2 or WSL for parser compilation.",
+                                vim.log.levels.WARN
+                            )
+                        end
+                    )
+                end
+            end,
             -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
             opts = {
                 ensure_installed = {
